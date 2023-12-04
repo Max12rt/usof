@@ -5,10 +5,10 @@ const authenticateAdmin = require('../main/authenteficateAdmin');
 
 router.get('/', categoryCtrl.getAllCategoriesWithPagination);
 router.get('/all', authenticateUser, categoryCtrl.getAllCategories);
-router.get('/:categoryId', authenticateUser, categoryCtrl.getCategoryById);
+router.get('/:categoryId', categoryCtrl.getCategoryById); //router.get('/:categoryId', authenticateUser, categoryCtrl.getCategoryById);
 router.get('/:categoryId/posts', authenticateUser, categoryCtrl.getPostsByCategoryId);
-router.post('/', authenticateUser, categoryCtrl.getCategoryById);
-router.patch('/:categoryId', authenticateUser, authenticateAdmin, categoryCtrl.updateCategoryById);
-router.delete('/:categoryId', authenticateUser, authenticateAdmin, categoryCtrl.deleteCategoryById);
+router.post('/', categoryCtrl.createNewCategory); //authenticateUser
+router.put('/:categoryId', categoryCtrl.updateCategoryById);
+router.delete('/:categoryId',  categoryCtrl.deleteCategoryById); //authenticateUser, authenticateAdmin,
 
 module.exports = router;

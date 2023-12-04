@@ -9,7 +9,7 @@ const Menu = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get("/posts");
-        setPosts(res.data);
+        setPosts(res.data.rows);
       } catch (err) {
         console.log(err);
       }
@@ -21,7 +21,7 @@ const Menu = () => {
   return (
       <div className="menu">
         <h1>Other posts you may like</h1>
-        {posts.map((post) => (
+        {posts.forEach((post) => (
             <div className="post" key={post.id}>
               <img src={`../upload/${post.img}`} alt="post cover" />
               <h2>{post.title}</h2>

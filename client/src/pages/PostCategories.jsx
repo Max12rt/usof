@@ -20,7 +20,7 @@ const PostCategories = ({ match }) => {
     return (
         <div>
             <h2>Categories</h2>
-            {categories.map(category => (
+            {categories.forEach(category => (
                 <div key={category.id}>
                     <p>{category.name}</p>
                 </div>

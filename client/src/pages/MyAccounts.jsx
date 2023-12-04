@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 
 const MyAccount = () => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        // Fetch user data for the current authenticated user
+        const fetchMyAccount = async () => {
             try {
-                const response = await axios.get('/myAccount');
-                setUser(response.data);
-                console.log(response.data);
+                const response = await fetch('/api/users/myAccount'); // Adjust the API endpoint
+                const data = await response.json();
+                setUser(data.user); // Assuming your API returns a 'user' property
             } catch (error) {
-                console.error(error);
+                console.error('Error fetching user account:', error);
             }
         };
 
-        fetchData();
+        fetchMyAccount();
     }, []);
 
     return (
@@ -23,12 +23,12 @@ const MyAccount = () => {
             <h1>My Account</h1>
             {user ? (
                 <div>
-                    <p>Login: {user.login}</p>
-                    <p>Email: {user.email}</p>
-                    <p>Full Name: {user.full_name}</p>
+                    <h2>{user.login}</h2>
+                    <p>{user.email}</p>
+                    {/* Add more details or styling as needed */}
                 </div>
             ) : (
-                <p>Loading...</p>
+                <p>Loading user account...</p>
             )}
         </div>
     );

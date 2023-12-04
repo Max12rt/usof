@@ -1,33 +1,13 @@
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
 import Logo from "../images/logo.png";
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const { currentUser, logout } = useContext(AuthContext);
 
-  const logoutNavbar = async () => {
-    try {
-      // Assuming you have a logout function in your AuthContext that handles the client-side logout
-      await logout();
-
-      // After the client-side logout, make a POST request to the server logout endpoint
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // Include credentials for cookie to be sent
-      });
-
-      if (response.ok) {
-        console.log(response.text());
-        navigate("/login");
-      } else {
-        // Handle server error or failed logout
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Error during logout", error);
-    }
+  const logoutNavbar = () => {
+    logout();
   };
 
   return (
@@ -42,13 +22,7 @@ const Navbar = () => {
             <Link className="link" to="/">
               <h6>Home</h6>
             </Link>
-            <Link className="link" to="/acountManegment">
-              <button>AcountManagment</button>
-            </Link>
-            <Link className="link" to="/manager">
-              <button>userManagment</button>
-            </Link>
-            <Link className="link" to="/write">
+            <Link className="link" to="/CreatePost">
               <h6>Write</h6>
             </Link>
             <Link className="link" to="/categories">

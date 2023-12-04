@@ -8,7 +8,7 @@ const CategoryPosts = () => {
     useEffect(() => {
         fetch(`/api/categories/${categoryId}/posts`)
             .then((response) => response.json())
-            .then((data) => setPosts(data))
+            .then((data) => setPosts(data.rows))
             .catch((error) => console.error('Error fetching category posts:', error));
     }, [categoryId]);
 
@@ -16,7 +16,7 @@ const CategoryPosts = () => {
         <div>
             <h2>Posts in Category</h2>
             <ul>
-                {posts.map((post) => (
+                {posts.forEach((post) => (
                     <li key={post.id}>{post.title}</li>
                 ))}
             </ul>

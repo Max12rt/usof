@@ -6,16 +6,19 @@ const User = require('../models/userModel')
 const Post_Category = require('../models/postCategModel')
 
 const postController = {
-    getAllPosts: async (require, result) => {
+    getAllPosts: async (request, res) => {
         try{
             const page = parseInt(request.query.page) || 1; // Ensure page is a number
             const limit = 4;
             const offset = (page - 1) * limit;
 
-            const posts = await Post.findAndCountAll({
+            await Post.findAndCountAll({
                 limit: limit,
                 offset: offset,
-            });
+            }).then(result => {
+                res.status(200).json(result)
+            })
+           
             /*await Post.findAndCountAll({
                 limit: 4,
                 offset: (require.query.page - 1) * 4,
@@ -27,7 +30,8 @@ const postController = {
     getPostById: async (require, result) => {
         try{
             const post = await Post.findOne({
-                where: {id: require.params.post_id}
+                where: {id: require.params.post_id},
+                include: [{ model: Comment, where: { post_id: require.params.post_id } }]
             })
             if (!post) result.status(404).json({ message: "Post with this id does not exist" });
             else result.status(200).json({ post });
@@ -45,9 +49,10 @@ const postController = {
     },
     createCommentToPostById: async (require, result) => {
         try {
+            const userId = require.user  == undefined?1:require.user.id
             const {content} = require.body
             const comment = await Comment.create({
-                author: require.user.id,
+                author: userId,
                 publishDate: new Date(),
                 content: content,
                 post_id: require.params.post_id
@@ -82,20 +87,22 @@ const postController = {
             return result.status(200).json({likes})
         } catch (error) {handleErrors(error, result);}
     },
-    createPost: async (require, result) => {
+    createPost: async (request, result) => {
         try {
-            const { title, content, categories } = require.body
-            console.log(categories)
+            const { title, content, categories } = request.body
+            
+            const userId = parseInt(request.query.page) || 1;
+            console.log(userId)
             const post = await Post.create({
                 title: title,
                 content: content,
-                author: require.user.id,
+                author: userId,
                 publishDate: new Date()
             })
-            categories.map(async elem => {
+            /*categories.map(async elem => {
                 const category = await Category.findAll({where: { id: elem }})
-                post.addCategory(category)
-            })
+                await PostCategory.create({post_id: post.id, category_id : category});
+            })*/
             if(!post) return result.status(400).json({message: "Post not created"})
             return result.status(200).json({message: "Post created"})
         } catch(error) {handleErrors(error, result);}
@@ -164,24 +171,30 @@ const postController = {
         } catch (error) {handleErrors(error, result);}
     },
     updatePostById: async (require, result) => {
+        console.log(require.user)
+        const userId = require.user  == undefined?1:require.user.id
+
         const { title, content} = require.body
         const post = await Post.findOne({
             where: {id: require.params.post_id}})
-        if(post.author === require.user.id){
+        if(post.author === userId){
             await post.update({
                 title: title ? title : post.title,
                 content: content ? content : post.content,})
         }
-        if(post.author !== require.user.id) return result.status(401).json({message: "Only the author can update the post"})
+        if(post.author !== userId) return result.status(401).json({message: "Only the author can update the post"})
         if(!post) return result.status(400).json({message: "Post cant be update"})
         return result.status(200).json({message: "Post updated"})
     },
     deletePostById: async (require, result) => {
+        const userId = require.user  == undefined?1:require.user.id
         try {
             const post = await Post.findOne({
                 where: {id: require.params.post_id}})
             if(!post) return result.status(400).json({message: "Post with this id not found"})
-            if(post.author === require.user.id || require.user.role === "admin"){
+            
+            //todo user
+            if(post.author === userId ){//|| require.user.role === "admin"){
                 await Post.destroy({where: {id: require.params.post_id}})
                 return result.status(200).json({message: "Post deleted"})
             } else

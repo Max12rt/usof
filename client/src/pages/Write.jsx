@@ -41,23 +41,23 @@ const Write = () => {
     e.preventDefault();
 
     // Upload the image and get the filename
-    const imgUrl = await upload();
+   // const imgUrl = await upload();
 
     try {
       // Send a PUT request to update a post if the location state is defined (writing),
       // otherwise send a POST request to create a new post
       state
-        ? await axios.put(`/posts/${state.id}`, {
+        ? await axios.put(`api/posts/${state.id}`, {
             title,
             desc: value,
             cat,
-            img: file ? imgUrl : "",
+            img: "",
           })
-        : await axios.post(`/posts/`, {
+        : await axios.post(`api/posts`, {
             title,
             desc: value,
             cat,
-            img: file ? imgUrl : "",
+            img: "",
             date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           });
 

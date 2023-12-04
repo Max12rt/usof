@@ -75,6 +75,12 @@ app.use('/api/comments', commentRouter);
 
 // Serve React app
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
+/*
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+});*/
+
+
 const host = process.env.HOST || '127.0.0.1';
 const port = process.env.PORT || 3000;
 

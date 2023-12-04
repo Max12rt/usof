@@ -9,7 +9,7 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get('/api/posts'); // Assuming your API endpoint is at /api/posts
-        setPosts(res.data);
+        setPosts(res.data.rows);
       } catch (err) {
         console.error(err);
       }
@@ -25,7 +25,7 @@ const Home = () => {
   return (
       <div className="home">
         <div className="posts">
-          {posts.map((post) => (
+          {posts.forEach((post) => (
               <div className="post" key={post.id}>
                 <div className="post-img">
                   <img src={`../upload/${post.img}`} alt="post cover" />

@@ -7,7 +7,7 @@ const userController = {
     getMyAccount: async (require, result) => {
         try {
             const user = await User.findOne({
-                where: {id: require.user},
+                where: {id: require.user.id},
                 attributes: {exclude: ['password']}
             })
             if(!user) return result.status(404).json({message: "User not found"})
@@ -18,8 +18,6 @@ const userController = {
         try {
             User
                 .findAndCountAll({
-                    limit: 4,
-                    offset: (require.query.page - 1) *4,
                     attributes: {exclude: ['password']},
                     order: [['id', 'ASC']]})
                 .then(users => {

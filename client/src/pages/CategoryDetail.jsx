@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Link } from "react-router-dom";
+
 
 const CategoryDetail = () => {
     const { categoryId } = useParams();
@@ -20,6 +22,7 @@ const CategoryDetail = () => {
         <div>
             <h2>{category.title}</h2>
             <p>{category.description}</p>
+            <p><Link to={`/categories/${categoryId}/edit`}>Edit</Link></p>
         </div>
     );
 };

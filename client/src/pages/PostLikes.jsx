@@ -20,7 +20,7 @@ const PostLikes = ({ match }) => {
     return (
         <div>
             <h2>Likes</h2>
-            {likes.map(like => (
+            {likes.forEach(like => (
                 <div key={like.id}>
                     <p>{like.type}</p>
                 </div>

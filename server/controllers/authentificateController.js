@@ -6,7 +6,6 @@ const app = express();
 require("dotenv").config();
 app.use(express.json());
 
-
 const sendMail = require('./sendlerEmail')
 
 const authentificateController = {
@@ -17,7 +16,7 @@ const authentificateController = {
             const passwordHash = await bcrypt.hash(password, 12);
 
             const newUser = {login, email, password: passwordHash, full_name}
-            const activation_token = createActivationToken(newUser);
+            const activation_token = process.env.ACTIVATION_TOKEN_SECRET
 
             if(!login || !email || !password)
                 return result.status(400).json({message: "Please fill in all fields."})
@@ -46,7 +45,9 @@ const authentificateController = {
     },
     activateEmail: async (request, result) =>{
       try {
-          const {activation_token} = request.body
+          const { activation_token } = request.body;
+          console.log('Received activation token:', activation_token);
+
           const user = jwt.verify(activation_token, process.env.ACTIVATION_TOKEN_SECRET)
           const {login, email, password, full_name} = user
           let check = await User.findOne({where: {email: email}})
@@ -61,7 +62,7 @@ const authentificateController = {
               password: password,
               full_name: full_name
           })
-          result.status(200).json({ message: "Account has been activated."});
+          result.status(200).json({ message: "Account has been activated.", user: newUser });
       } catch (error) {
           handleErrors(error, result);
       }
@@ -105,11 +106,11 @@ const authentificateController = {
             const {email} = request.body
             const user = await User.findOne({where: {email: email}})
             if(!user) return result.status(400).json({message: "This email does not exist."})
-            const access_token = process.env.ACCESS_TOKEN_SECRET;
+            const access_token = createAccessToken({id: user.id})
             const mailOptions = {
                 to: request.body.email,
                 subject: 'Reset password',
-                text: `http://localhost:3001/resetPassword/${access_token}`
+                text: `http://localhost:3000/resetPassword/${access_token}`
             }
             sendMail(mailOptions)
             result.status(200).json({message: "Re-send the password, please check your email."})
@@ -119,14 +120,11 @@ const authentificateController = {
     },
     resetPassword: async (request, result) => {
         try {
-            const token = request.params.confirmToken;
-            console.log(request);
-            console.log(token);
-            console.log(process.env.ACCESS_TOKEN_SECRET);
+            const token = request.params.confirm_token
             if(!token) return result.status(400).json({message: "Invalid authentication."})
-            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error) => {
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user) => {
                 if (error) return result.status(400).json({message: "Invalid authentication."})
-                //request.user = user
+                request.user = user
             })
             const {password} = request.body
             if(password.length < 8)

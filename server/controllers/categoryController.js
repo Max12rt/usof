@@ -3,28 +3,33 @@ const Post = require('../models/postModel')
 const Post_Category = require('../models/postCategModel')
 
 const categoryController = {
-    getAllCategoriesWithPagination: async (require, result) => {
+    getAllCategoriesWithPagination: async (request, res) => {
         try {
+            const page = parseInt(request.query.page) || 1; // Ensure page is a number
+            const limit = 4;
+            const offset = (page - 1) * limit;
+
             await Category.findAndCountAll({
-                limit: 4,
-                offset: (require.query.page - 1) * 4,
+                limit: limit,
+                offset: offset,
             }).then(result => {
-                return result.status(200).json(result)
+                return res.status(200).json(result)
             })
         }
          catch (error) {handleErrors(error, result);}
     },
-    getAllCategories: async (require, result) => {
+    getAllCategories: async (request, res) => {
         try {
             await Category.findAll().then(result => {
-                return result.status(200).json(result)
+                return res.status(200).json(result)
               })
         } catch (error){handleErrors(error, result);}
     },
-    getCategoryById: async (require, result) => {
+    getCategoryById: async (request, result) => {
         try {
+            console.log(request.params)
             const category = await Category.findOne({
-                where: {id: require.params.category_id}
+                where: {id: request.params.categoryId}
             })
             if(!category)
                 return result.status(400).json({message: "Category with this id does not exist"})
@@ -46,7 +51,6 @@ const categoryController = {
             return result.status(200).json(posts)
         }  catch (error) {handleErrors(error, result);}
     },
-    /*
     createNewCategory: async (require, result) => {
         try {
             const { title, description } = require.body
@@ -63,12 +67,12 @@ const categoryController = {
         } catch (error) {
             handleErrors(error, result);
         }
-    },*/
+    },
     updateCategoryById: async (require, result) => {
         try {
             const { title, description } = require.body
             const category = await Category.findOne({
-                where: {id: require.params.category_id}
+                where: {id: require.params.categoryId}
             })
             if(!category) return result.status(400).json({message: "Category with this id does not exist"})
             await category.update({
@@ -80,7 +84,7 @@ const categoryController = {
     },
     deleteCategoryById: async (require, result) => {
         try {
-            await Category.destroy({where: {id: require.params.category_id}})
+            await Category.destroy({where: {id: require.params.categoryId}})
             return result.status(200).json({message: "Category deleted"})
         } catch (error) { handleErrors(error, result);}
     }

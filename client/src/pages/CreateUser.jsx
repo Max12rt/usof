@@ -1,24 +1,31 @@
-// CreateUser.js
 import React, { useState } from 'react';
-import axios from 'axios';
 
 const CreateUser = () => {
-    const [formData, setFormData] = useState({
-        login: '',
-        email: '',
-        password: '',
-        full_name: '',
-    });
+    const [login, setLogin] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
 
-    const handleChange = e => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async e => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Perform the user creation POST request here
         try {
-            await axios.post('/api/user/', formData);
-            // Optionally, redirect to the user list or show a success message
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ login, email, password, full_name: fullName }),
+            });
+
+            if (response.status === 201) {
+                // User created successfully
+                // You may want to redirect to the user details page or handle as needed
+                console.log('User created successfully!');
+            } else {
+                console.error('Error creating user:', response.statusText);
+            }
         } catch (error) {
             console.error('Error creating user:', error);
         }
@@ -28,26 +35,12 @@ const CreateUser = () => {
         <div>
             <h1>Create User</h1>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Login:
-                    <input type="text" name="login" onChange={handleChange} />
-                </label>
-                <br />
-                <label>
-                    Email:
-                    <input type="email" name="email" onChange={handleChange} />
-                </label>
-                <br />
-                <label>
-                    Password:
-                    <input type="password" name="password" onChange={handleChange} />
-                </label>
-                <br />
-                <label>
-                    Full Name:
-                    <input type="text" name="full_name" onChange={handleChange} />
-                </label>
-                <br />
+                {/* Add form fields for login, email, password, and full name */}
+                <label>Login:</label>
+                <input type="text" value={login} onChange={(e) => setLogin(e.target.value)} required />
+
+                {/* Repeat similar input fields for other properties */}
+
                 <button type="submit">Create User</button>
             </form>
         </div>

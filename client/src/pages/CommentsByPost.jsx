@@ -20,7 +20,7 @@ const CommentsByPost = ({ match }) => {
     return (
         <div>
             <h2>Comments</h2>
-            {comments.map(comment => (
+            {comments.forEach(comment => (
                 <div key={comment.id}>
                     <p>{comment.content}</p>
                 </div>

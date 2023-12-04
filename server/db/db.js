@@ -4,7 +4,7 @@ const dbConfig = {
     host: 'localhost',
     user: 'root',
     database: 'usof1',
-    password: 'root1'
+    password: 'root'
 };
 
 const sequelize = new Sequelize(
