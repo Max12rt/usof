@@ -27,7 +27,7 @@ const Like = sequelize.define( "Like",{
     type: {
         type: DataTypes.ENUM,
         values: ["like", "dislike"],
-        allowNull: false
+        allowNull: true
     }
 })
 

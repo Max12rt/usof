@@ -10,8 +10,6 @@ const categoryController = {
             const offset = (page - 1) * limit;
 
             await Category.findAndCountAll({
-                limit: limit,
-                offset: offset,
             }).then(result => {
                 return res.status(200).json(result)
             })

@@ -3,7 +3,7 @@ const Comment = require('../models/commentModel')
 const Category = require('../models/categoryModel')
 const Like = require('../models/likeModel')
 const User = require('../models/userModel')
-const Post_Category = require('../models/postCategModel')
+const PostCategory = require('../models/postCategModel')
 
 const postController = {
     getAllPosts: async (request, res) => {
@@ -12,9 +12,7 @@ const postController = {
             const limit = 4;
             const offset = (page - 1) * limit;
 
-            await Post.findAndCountAll({
-                limit: limit,
-                offset: offset,
+            await Post.findAndCountAll({                
             }).then(result => {
                 res.status(200).json(result)
             })
@@ -30,11 +28,16 @@ const postController = {
     getPostById: async (require, result) => {
         try{
             const post = await Post.findOne({
-                where: {id: require.params.post_id},
-                include: [{ model: Comment, where: { post_id: require.params.post_id } }]
+                where: {id: require.params.post_id}               
             })
             if (!post) result.status(404).json({ message: "Post with this id does not exist" });
-            else result.status(200).json({ post });
+            else 
+            {
+                const comments = await Comment.findAll({
+                where: {post_id: require.params.post_id}})
+
+                result.status(200).json({ post, comments });
+            }
         } catch (error) {handleErrors(error, result);}
     },
     getCommentsByPostId: async (require, result) => {
@@ -74,22 +77,30 @@ const postController = {
             return result.status(200).json(categories)
         } catch (error) {handleErrors(error, result);}
     },
-    getAllLikesByPostId: async (require, result) => {
+    getAllLikesByPostId: async (request, result) => {
         try {
-            const likes = await Post.findAll({
-                where: {id: require.params.post_id},
-                include: [{
-                    model: Like,
-                    where: {post_id: require.params.post_id}
-                }]
+            const userId = parseInt(request.query.page) || 1;
+            const likes = await Like.findAll({
+                where: {post_id: request.params.post_id}                
             })
-            if(!likes) return result.status(400).json("Likes in this post does not exist")
-            return result.status(200).json({likes})
+            if(!likes)
+            {
+                return result.status(200).json({countLike : 0, countDislike : 0,myChoose : ""})
+            }
+            const countLike = likes.filter(x=> x.type === "like").length
+            const countDislike = likes.filter(x=> x.type === "dislike").length
+            const likeDb =likes.find(x=> x.author === userId)
+            console.log(likeDb)
+            if(likeDb === undefined)
+            {
+                result.status(200).json({countLike, countDislike, myChoose: ""})
+            }
+            return result.status(200).json({countLike, countDislike, myChoose: likeDb.type})
         } catch (error) {handleErrors(error, result);}
     },
     createPost: async (request, result) => {
         try {
-            const { title, content, categories } = request.body
+            const { title, content, categoriesSelect } = request.body
             
             const userId = parseInt(request.query.page) || 1;
             console.log(userId)
@@ -99,19 +110,23 @@ const postController = {
                 author: userId,
                 publishDate: new Date()
             })
-            /*categories.map(async elem => {
-                const category = await Category.findAll({where: { id: elem }})
-                await PostCategory.create({post_id: post.id, category_id : category});
-            })*/
+           
             if(!post) return result.status(400).json({message: "Post not created"})
+            console.log(post.id)
+            categoriesSelect.map(async elem => {                
+                await PostCategory.create({post_id: post.id, category_id : elem});
+            })
             return result.status(200).json({message: "Post created"})
+
+
         } catch(error) {handleErrors(error, result);}
     },
     createNewLikeByPostId: async (require, result) => {
         try {
+            const userId = require.user  == undefined?1:require.user.id
             const { likeType } = require.body
             const check = await Like.findOne({
-                where: {author: require.user.id, post_id: require.params.post_id}
+                where: {author: userId, post_id: require.params.post_id}
             })
             if(check){
                 if(check.type === 'dislike'){
@@ -144,7 +159,7 @@ const postController = {
                 }
             }
             const like = await Like.create({
-                author: require.user.id,
+                author: userId,
                 publishDate: new Date(),
                 post_id: require.params.post_id,
                 type: likeType

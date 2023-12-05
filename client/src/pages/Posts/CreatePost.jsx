@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 const CreatePost = () => {
+    const { postId } = useParams();
+    const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [categories, setCategories] = useState([]);
@@ -32,6 +35,7 @@ const CreatePost = () => {
   try {
     await axios.post('/api/posts', { title, content, categoriesSelect }); // додати categories тут
     alert('Post created successfully!');
+    navigate(`/posts`);
   } catch (error) {
     console.error(error);
   }
