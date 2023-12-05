@@ -93,7 +93,7 @@ const postController = {
             console.log(likeDb)
             if(likeDb === undefined)
             {
-                result.status(200).json({countLike, countDislike, myChoose: ""})
+                return result.status(200).json({countLike, countDislike, myChoose: ""})
             }
             return result.status(200).json({countLike, countDislike, myChoose: likeDb.type})
         } catch (error) {handleErrors(error, result);}
